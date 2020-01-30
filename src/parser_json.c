@@ -913,13 +913,23 @@ json_parse_data(struct ly_ctx *ctx, const char *data, const struct lys_node *sch
                 }
             }
         } else {
-            while ((schema = (struct lys_node *)lys_getnext(schema, prefix ? NULL : (*parent)->schema, module, 0))) {
+            while ((schema = (struct lys_node *)lys_getnext(schema, (*parent)->schema, NULL, 0))) {
                 if (!strcmp(schema->name, name)
                         && ((prefix && !strcmp(lys_node_module(schema)->name, prefix))
                         || (!prefix && (lys_node_module(schema) == lyd_node_module(*parent))))) {
                     break;
                 }
             }
+
+	    if (!schema && prefix) {
+                while ((schema = (struct lys_node *)lys_getnext(schema, NULL, module, 0))) {
+                    if (!strcmp(schema->name, name)
+                            && ((prefix && !strcmp(lys_node_module(schema)->name, prefix))
+                            || (!prefix && (lys_node_module(schema) == lyd_node_module(*parent))))) {
+                        break;
+                    }
+                }
+	    }
         }
     }
 
